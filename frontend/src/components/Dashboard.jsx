@@ -5,6 +5,7 @@ import Charts from './Charts';
 import InfoSection from './InfoSection';
 import LanguageToggle from './LanguageToggle';
 import TimeFilter from './TimeFilter'; // *** NEW IMPORT ***
+import ScreenReaderButton from './ScreenReaderButton';
 import { getHistoryByYear, getAvailableFinancialYears } from '../utils/api'; // *** UPDATED IMPORT ***
 import { Users, AlertCircle } from 'lucide-react';
 
@@ -206,6 +207,7 @@ const Dashboard = () => {
                 )}
               </p>
             </div>
+            <ScreenReaderButton language={language} />
           </>
         )}
       </div>
