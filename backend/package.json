@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "sync": "node src/jobs/dataSync.js",
+    "sync": "node src/runSync.js",
     "seed": "node src/jobs/seedData.js"
   },
   "keywords": ["mgnrega", "dashboard", "chhattisgarh"],

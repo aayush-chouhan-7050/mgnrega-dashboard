@@ -6,43 +6,66 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { connectDB } from './config/database.js';
 import { connectRedis } from './config/redis.js';
-import apiRoutes from './routes/api.js';
 import { startDataSync } from './jobs/dataSync.js';
+
+// Import all route handlers
+import apiRoutes from './routes/api.js';
+import districtRoutes from './routes/districts.js';
+import locationRoutes from './routes/location.js';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
+const IS_PROD = process.env.NODE_ENV === 'production';
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: IS_PROD ? 100 : 1000, // 100 requests in prod, 1000 in dev
   message: 'Too many requests from this IP, please try again later.'
 });
 
-// Middleware
+// --- Middleware ---
+
+// Security headers. Removed insecure `contentSecurityPolicy: false`
 app.use(helmet({
-  contentSecurityPolicy: false, // Disable for development
   crossOriginEmbedderPolicy: false
 }));
 
-app.use(cors({ 
-  origin: process.env.CORS_ORIGIN || '*',
-  credentials: true
-}));
+// CORS
+// In production, we STRICTLY require the CORS_ORIGIN env var.
+// No fallback to '*' for better security.
+const corsOptions = {
+  credentials: true,
+  origin: (origin, callback) => {
+    if (!IS_PROD || (IS_PROD && origin === process.env.CORS_ORIGIN)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+};
+app.use(cors(corsOptions));
 
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Apply rate limiting to API routes
-app.use('/api/', limiter);
+// --- Routes ---
 
-// Routes
+// Apply rate limiting to all /api/ routes
+app.use('/api', limiter);
+
+// Mount all route handlers
+// /api/ (for health)
 app.use('/api', apiRoutes);
+// /api/districts/* (for all district data)
+app.use('/api/districts', districtRoutes);
+// /api/location/* (for location detection)
+app.use('/api/location', locationRoutes);
 
-// Root endpoint
+// Root endpoint (will be hit if Nginx isn't proxying)
 app.get('/', (req, res) => {
   res.json({
     message: 'MGNREGA Dashboard API',
@@ -51,17 +74,17 @@ app.get('/', (req, res) => {
   });
 });
 
-// 404 handler
-app.use((req, res) => {
+// 404 handler for any unmatched /api/ routes
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
-    error: 'Route not found'
+    error: 'API route not found'
   });
 });
 
-// Error handler
+// Global error handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
+  console.error('Error:', err.stack);
   res.status(err.status || 500).json({
     success: false,
     error: err.message || 'Internal server error'
@@ -77,7 +100,7 @@ process.on('SIGTERM', () => {
   });
 });
 
-// Start server
+// --- Start Server ---
 const startServer = async () => {
   try {
     // Connect to databases
@@ -88,11 +111,16 @@ const startServer = async () => {
     const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ Server running on port ${PORT}`);
       console.log(`✅ Environment: ${process.env.NODE_ENV}`);
-      console.log(`✅ CORS Origin: ${process.env.CORS_ORIGIN}`);
+      if (IS_PROD) {
+        console.log(`✅ CORS Origin enabled for: ${process.env.CORS_ORIGIN}`);
+      } else {
+        console.log('✅ CORS enabled for development (any origin)');
+      }
     });
     
     // Start daily data sync job
-    if (process.env.NODE_ENV === 'production') {
+    if (IS_PROD) {
+      console.log('Starting data sync job...');
       startDataSync();
       console.log('✅ Data sync job started');
     }
