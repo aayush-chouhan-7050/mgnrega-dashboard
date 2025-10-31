@@ -4,10 +4,10 @@ import MetricsCards from './MetricsCards';
 import Charts from './Charts';
 import InfoSection from './InfoSection';
 import LanguageToggle from './LanguageToggle';
-import TimeFilter from './TimeFilter'; // *** NEW IMPORT ***
-import ScreenReaderButton from './ScreenReaderButton';
-import { getHistoryByYear, getAvailableFinancialYears } from '../utils/api'; // *** UPDATED IMPORT ***
-import { Users, AlertCircle } from 'lucide-react';
+import TimeFilter from './TimeFilter';
+import ComparisonChart from './ComparisonChart'; // *** NEW IMPORT ***
+import { getHistoryByYear, getAvailableFinancialYears, compareDistricts } from '../utils/api'; // *** UPDATED IMPORT ***
+import { Users, AlertCircle, Loader2 } from 'lucide-react'; // *** UPDATED IMPORT ***
 
 // Moved translations object outside the component
 const translations = {
@@ -16,6 +16,7 @@ const translations = {
     subtitle: "Chhattisgarh State",
     loading: "Loading data...",
     noData: "Please select a district to view data",
+    noDataForPeriod: "No data found for this period. Please select another time period.",
     error: "Failed to load data. Please try again.",
     lastUpdated: "Last Data Entry"
   },
@@ -24,6 +25,7 @@ const translations = {
     subtitle: "छत्तीसगढ़ राज्य",
     loading: "डेटा लोड हो रहा है...",
     noData: "कृपया डेटा देखने के लिए एक जिला चुनें",
+    noDataForPeriod: "इस अवधि के लिए कोई डेटा नहीं मिला। कृपया दूसरी समय अवधि चुनें।",
     error: "डेटा लोड करने में विफल। कृपया पुन: प्रयास करें।",
     lastUpdated: "अंतिम डेटा प्रविष्टि"
   }
@@ -62,6 +64,7 @@ const Dashboard = () => {
   // *** STATE MODIFIED ***
   const [historyData, setHistoryData] = useState([]);
   const [totalData, setTotalData] = useState(null); // For MetricsCards
+  const [compareData, setCompareData] = useState([]); // *** NEW STATE ***
   const [availableYears, setAvailableYears] = useState([]);
   const [timeFilter, setTimeFilter] = useState('12m'); // '12m', 'all', '2020-2021'
   // ---
@@ -71,7 +74,12 @@ const Dashboard = () => {
 
   const t = translations[language];
 
-  // Effect to load data when district or time filter changes
+  // Effect to load comparison data once on mount
+  useEffect(() => {
+    loadCompareData();
+  }, []);
+
+  // Effect to load district data when district or time filter changes
   useEffect(() => {
     if (selectedDistrict) {
       loadDistrictData(selectedDistrict, timeFilter);
@@ -82,11 +90,26 @@ const Dashboard = () => {
   useEffect(() => {
     if (historyData.length > 0) {
       const totals = calculateTotals(historyData);
+      // Fix expenditure to be in Crores if it's not already
+      totals.expenditure = parseFloat(totals.expenditure.toFixed(2));
       setTotalData(totals);
     } else {
       setTotalData(null); // Clear totals if no history
     }
   }, [historyData]);
+
+  // *** NEW FUNCTION ***
+  const loadCompareData = async () => {
+    try {
+      const response = await compareDistricts();
+      if (response.success) {
+        setCompareData(response.data);
+      }
+    } catch (err) {
+      console.error('Load compare data error:', err);
+      // Non-critical, so we don't set a page-level error
+    }
+  };
 
   const loadDistrictData = async (districtCode, yearKey) => {
     setLoading(true);
@@ -119,17 +142,18 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
+    // Added responsive padding
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6">
           <div className="flex justify-between items-center flex-wrap gap-4">
             <div className="flex items-center gap-3">
-              <div className="bg-green-600 p-3 rounded-full">
+              <div className="bg-green-600 p-3 rounded-full shadow-md">
                 <Users className="text-white" size={32} />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-green-800">{t.title}</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-green-800">{t.title}</h1>
                 <p className="text-gray-600">{t.subtitle}</p>
               </div>
             </div>
@@ -148,8 +172,7 @@ const Dashboard = () => {
           translations={translations}
         />
 
-        {/* *** NEW COMPONENT *** */}
-        {/* Show time filter only after a district is selected */}
+        {/* Time Filter - Show only after a district is selected */}
         {selectedDistrict && (
           <TimeFilter
             language={language}
@@ -159,40 +182,62 @@ const Dashboard = () => {
           />
         )}
 
-        {/* Loading State */}
+        {/* Loading State - ADDED ARIA-LIVE */}
         {loading && (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-600 border-t-transparent"></div>
+          <div 
+            className="text-center py-12" 
+            role="status" 
+            aria-live="polite"
+            aria-label={t.loading}
+          >
+            <Loader2 className="inline-block animate-spin text-green-600 h-12 w-12" />
             <p className="mt-4 text-gray-600 text-xl">{t.loading}</p>
           </div>
         )}
 
-        {/* Error State */}
+        {/* Error State - ADDED ARIA-LIVE */}
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded flex items-center gap-3">
+          <div 
+            className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded flex items-center gap-3"
+            role="alert"
+            aria-live="assertive"
+          >
             <AlertCircle className="text-red-600" size={24} />
             <p className="text-red-800">{error}</p>
           </div>
         )}
 
-        {/* No Data State */}
+        {/* No Data State - ADDED ARIA-LIVE */}
         {!loading && !error && historyData.length === 0 && (
-          <div className="bg-white rounded-lg shadow-lg p-12 text-center">
+          <div 
+            className="bg-white rounded-lg shadow-lg p-12 text-center"
+            role="status"
+            aria-live="polite"
+          >
             <Users className="mx-auto text-gray-400 mb-4" size={64} />
             <p className="text-gray-600 text-xl">
-              {selectedDistrict ? 'No data found for this period.' : t.noData}
+              {selectedDistrict ? t.noDataForPeriod : t.noData}
             </p>
           </div>
         )}
 
         {/* Data Display */}
-        {/* Note: We check totalData, which is derived from historyData */}
         {!loading && !error && totalData && (
           <>
             <MetricsCards 
               data={totalData} // Pass the calculated totals
               language={language}
             />
+            
+            {/* *** NEW COMPONENT RENDERED *** */}
+            {compareData.length > 0 && selectedDistrict && (
+              <ComparisonChart
+                compareData={compareData}
+                selectedDistrictCode={selectedDistrict}
+                language={language}
+              />
+            )}
+
             <Charts 
               historyData={historyData} // Pass the monthly history
               language={language}
@@ -207,7 +252,7 @@ const Dashboard = () => {
                 )}
               </p>
             </div>
-            <ScreenReaderButton language={language} />
+            {/* *** REMOVED ScreenReaderButton *** */}
           </>
         )}
       </div>

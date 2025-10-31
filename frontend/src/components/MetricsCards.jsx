@@ -62,10 +62,12 @@ const MetricsCards = ({ data, language }) => {
   ];
 
   const formatValue = (value, format) => {
+    const num = Number(value) || 0;
     if (format === 'currency') {
-      return `₹${value.toLocaleString('en-IN')}`;
+      // Format to 2 decimal places for currency
+      return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
-    return value.toLocaleString('en-IN');
+    return num.toLocaleString('en-IN');
   };
 
   return (
@@ -76,15 +78,16 @@ const MetricsCards = ({ data, language }) => {
     >
       {metrics.map((metric, index) => {
         const Icon = metric.icon;
+        // Ensure value is a number before formatting
         const formattedValue = formatValue(metric.value, metric.format);
         
         return (
           <article 
             key={index}
             className={`bg-gradient-to-br ${metric.color} rounded-lg shadow-lg p-6 text-white transform transition-transform hover:scale-105 focus-within:scale-105`}
-            role="article"
-            aria-label={`${metric.ariaLabel[language]}: ${formattedValue}`}
+            // Make the article focusable and announce its content
             tabIndex="0"
+            aria-label={`${metric.label[language]}: ${formattedValue}. ${metric.ariaLabel[language]}.`}
           >
             <div className="flex items-center justify-between mb-2">
               <Icon size={32} aria-hidden="true" />

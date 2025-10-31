@@ -4,7 +4,8 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  /* Use Roboto as the base, with Noto Sans Devanagari as the fallback for Hindi */
+  font-family: 'Roboto', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -14,4 +15,9 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Ensure Hindi text uses the Noto Sans font */
+[lang="hi"] {
+  font-family: 'Noto Sans Devanagari', 'Roboto', sans-serif;
 }

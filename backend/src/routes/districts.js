@@ -1,6 +1,7 @@
 import express from 'express';
 import DistrictData from '../models/DistrictData.js';
 import { getCachedData, setCachedData } from '../services/cacheService.js';
+import logger from '../utils/logger.js'; // IMPORT LOGGER
 
 const router = express.Router();
 
@@ -46,12 +47,13 @@ export const DISTRICTS_CONFIG = [
 // Get all districts list
 router.get('/', async (req, res) => {
   try {
+    logger.info('Request for /api/districts');
     res.json({ 
       success: true, 
       districts: DISTRICTS_CONFIG 
     });
   } catch (error) {
-    console.error('Get districts error:', error);
+    logger.error('Failed to get /api/districts', { message: error.message });
     res.status(500).json({ 
       success: false, 
       error: 'Failed to get districts list.' 
@@ -62,12 +64,15 @@ router.get('/', async (req, res) => {
 // GET /api/districts/:districtCode/current
 // Get specific district *latest* data (This is now used for the "Last Updated" text)
 router.get('/:districtCode/current', async (req, res) => {
+  const { districtCode } = req.params;
+  const cacheKey = `district:${districtCode}:current`;
+  
   try {
-    const { districtCode } = req.params;
-    const cacheKey = `district:${districtCode}:current`;
+    logger.info(`Request for current data: ${districtCode}`);
     
     let cachedData = await getCachedData(cacheKey);
     if (cachedData) {
+      logger.debug(`Cache hit for ${cacheKey}`);
       return res.json({ 
         success: true, 
         data: cachedData, 
@@ -75,11 +80,13 @@ router.get('/:districtCode/current', async (req, res) => {
       });
     }
     
+    logger.debug(`Cache miss for ${cacheKey}, querying database...`);
     let data = await DistrictData.findOne({ districtCode })
       .sort({ recordDate: -1 })
       .lean();
     
     if (!data) {
+      logger.warn(`No current data found for ${districtCode}`);
       return res.status(404).json({
         success: false,
         error: `No current data found for ${districtCode}. Data may still be syncing.`
@@ -94,7 +101,10 @@ router.get('/:districtCode/current', async (req, res) => {
       source: 'database' 
     });
   } catch (error) {
-    console.error('Get district current data error:', error);
+    logger.error(`Get district current data error: ${districtCode}`, { 
+      message: error.message, 
+      stack: error.stack 
+    });
     res.status(500).json({ 
       success: false, 
       error: error.message 
@@ -106,19 +116,23 @@ router.get('/:districtCode/current', async (req, res) => {
 // GET /api/districts/:districtCode/financial-years
 // Get a list of available financial years for filtering
 router.get('/:districtCode/financial-years', async (req, res) => {
+  const { districtCode } = req.params;
+  const cacheKey = `district:${districtCode}:finYears`;
+
   try {
-    const { districtCode } = req.params;
-    const cacheKey = `district:${districtCode}:finYears`;
+    logger.info(`Request for financial years: ${districtCode}`);
 
     let cachedData = await getCachedData(cacheKey);
     if (cachedData) {
+      logger.debug(`Cache hit for ${cacheKey}`);
       return res.json({ success: true, data: cachedData, source: 'cache' });
     }
 
-    // Find all distinct "year" values (e.g., 2018, 2019, 2020)
+    logger.debug(`Cache miss for ${cacheKey}, querying database...`);
     const distinctYears = await DistrictData.distinct('year', { districtCode });
 
     if (!distinctYears || distinctYears.length === 0) {
+      logger.warn(`No financial years found for ${districtCode}`);
       return res.json({ success: true, data: [] });
     }
 
@@ -132,7 +146,10 @@ router.get('/:districtCode/financial-years', async (req, res) => {
 
     res.json({ success: true, data: formattedYears, source: 'database' });
   } catch (error) {
-    console.error('Get financial years error:', error);
+    logger.error(`Get financial years error: ${districtCode}`, { 
+      message: error.message, 
+      stack: error.stack 
+    });
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -147,12 +164,15 @@ router.get('/:districtCode/financial-years', async (req, res) => {
 // 'all'   (All-time history)
 // '2020-2021' (Specific financial year)
 router.get('/:districtCode/history/:yearKey', async (req, res) => {
+  const { districtCode, yearKey } = req.params;
+  const cacheKey = `district:${districtCode}:history:${yearKey}`;
+  
   try {
-    const { districtCode, yearKey } = req.params;
-    const cacheKey = `district:${districtCode}:history:${yearKey}`;
+    logger.info(`Request for history: ${districtCode}, ${yearKey}`);
     
     let cachedData = await getCachedData(cacheKey);
     if (cachedData) {
+      logger.debug(`Cache hit for ${cacheKey}`);
       return res.json({ 
         success: true, 
         data: cachedData, 
@@ -160,6 +180,7 @@ router.get('/:districtCode/history/:yearKey', async (req, res) => {
       });
     }
     
+    logger.debug(`Cache miss for ${cacheKey}, querying database...`);
     let query = { districtCode };
     let limit = 0; // 0 = no limit
 
@@ -174,9 +195,10 @@ router.get('/:districtCode/history/:yearKey', async (req, res) => {
       
       // Fin year is April 1 (startYear) to March 31 (endYear)
       const startDate = new Date(startYear, 3, 1); // April 1st
-      const endDate = new Date(endYear, 3, 0);   // March 31st
+      const endDate = new Date(endYear, 3, 0);   // March 31st (day 0 of April)
 
       query.recordDate = { $gte: startDate, $lte: endDate };
+      logger.info(`Date range query for ${yearKey}: ${startDate.toISOString()} to ${endDate.toISOString()}`);
     }
     
     let data = await DistrictData.find(query)
@@ -185,6 +207,7 @@ router.get('/:districtCode/history/:yearKey', async (req, res) => {
       .lean();
     
     if (data.length === 0) {
+      logger.warn(`No historical data found for ${districtCode} with filter ${yearKey}.`);
       return res.json({
         success: true,
         data: [],
@@ -201,7 +224,10 @@ router.get('/:districtCode/history/:yearKey', async (req, res) => {
       source: 'database' 
     });
   } catch (error) {
-    console.error('Get district history error:', error);
+    logger.error(`Get district history error: ${districtCode}, ${yearKey}`, { 
+      message: error.message, 
+      stack: error.stack 
+    });
     res.status(500).json({ 
       success: false, 
       error: error.message 
@@ -213,11 +239,14 @@ router.get('/:districtCode/history/:yearKey', async (req, res) => {
 // GET /api/districts/compare/all
 // (This endpoint remains unchanged, still shows latest for all districts)
 router.get('/compare/all', async (req, res) => {
+  const cacheKey = 'districts:compare:all';
+  
   try {
-    const cacheKey = 'districts:compare:all';
+    logger.info('Request for /api/districts/compare/all');
     
     let cachedData = await getCachedData(cacheKey);
     if (cachedData) {
+      logger.debug(`Cache hit for ${cacheKey}`);
       return res.json({ 
         success: true, 
         data: cachedData, 
@@ -225,6 +254,7 @@ router.get('/compare/all', async (req, res) => {
       });
     }
     
+    logger.debug(`Cache miss for ${cacheKey}, querying database...`);
     const latestDataPerDistrict = await DistrictData.aggregate([
       { $sort: { recordDate: -1 } },
       {
@@ -256,7 +286,7 @@ router.get('/compare/all', async (req, res) => {
       }
     });
     
-    await setCachedData(cacheKey, compareData, 7200);
+    await setCachedData(cacheKey, compareData, 7200); // Cache for 2 hours
     
     res.json({ 
       success: true, 
@@ -264,7 +294,10 @@ router.get('/compare/all', async (req, res) => {
       source: 'database' 
     });
   } catch (error) {
-    console.error('Compare districts error:', error);
+    logger.error('Compare districts error', { 
+      message: error.message, 
+      stack: error.stack 
+    });
     res.status(500).json({ 
       success: false, 
       error: error.message 

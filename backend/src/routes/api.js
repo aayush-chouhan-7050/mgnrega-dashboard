@@ -3,6 +3,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { getRedisClient } from '../config/redis.js';
 import DistrictData from '../models/DistrictData.js';
+import logger from '../utils/logger.js'; // IMPORT LOGGER
 
 const router = express.Router();
 
@@ -41,6 +42,7 @@ router.get('/health', async (req, res) => {
         status: 'connected'
       };
     } catch (err) {
+      logger.error('Health check: Redis PING failed', { error: err.message });
       health.services.redis = {
         status: 'error',
         error: err.message
@@ -56,6 +58,7 @@ router.get('/health', async (req, res) => {
     };
 
     if (dataCount === 0) {
+      logger.warn('Health check: Database is empty');
       health.status = 'degraded';
       health.warning = 'Database is empty. Run seeding or sync.';
     }
@@ -69,9 +72,16 @@ router.get('/health', async (req, res) => {
     };
 
     const statusCode = health.status === 'ok' ? 200 : 503;
+    if (statusCode !== 200) {
+        logger.warn('Health check reported degraded status', health);
+    }
     res.status(statusCode).json(health);
 
   } catch (error) {
+    logger.error('Health check failed', { 
+      message: error.message, 
+      stack: error.stack 
+    });
     res.status(503).json({
       status: 'error',
       timestamp: new Date().toISOString(),
@@ -103,11 +113,15 @@ router.get('/stats', async (req, res) => {
       summary: {
         totalRecords,
         distinctDistricts,
-        averageRecordsPerDistrict: Math.round(totalRecords / distinctDistricts)
+        averageRecordsPerDistrict: distinctDistricts > 0 ? Math.round(totalRecords / distinctDistricts) : 0
       },
       districts: stats
     });
   } catch (error) {
+    logger.error('Failed to get /stats', { 
+      message: error.message, 
+      stack: error.stack 
+    });
     res.status(500).json({
       success: false,
       error: error.message

@@ -59,9 +59,6 @@ export const getAvailableFinancialYears = async (districtCode) => {
 };
 
 
-// (Other functions like getDistrictCurrent, compareDistricts, detectDistrictFromLocation, healthCheck remain the same)
-// ...
-
 // Get district current data
 export const getDistrictCurrent = async (districtCode) => {
   try {

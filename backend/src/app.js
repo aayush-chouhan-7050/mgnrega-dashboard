@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/database.js';
 import { connectRedis } from './config/redis.js';
 import { startDataSync } from './jobs/dataSync.js';
+import logger from './utils/logger.js'; // IMPORT LOGGER
 
 // Import all route handlers
 import apiRoutes from './routes/api.js';
@@ -42,6 +43,10 @@ const corsOptions = {
     if (!IS_PROD || (IS_PROD && origin === process.env.CORS_ORIGIN)) {
       callback(null, true);
     } else {
+      // Log CORS block in production
+      if (IS_PROD && origin) {
+        logger.warn('CORS blocked request from origin', { origin });
+      }
       callback(new Error('Not allowed by CORS'));
     }
   }
@@ -76,6 +81,7 @@ app.get('/', (req, res) => {
 
 // 404 handler for any unmatched /api/ routes
 app.use('/api/*', (req, res) => {
+  logger.warn('404 Not Found', { path: req.originalUrl, ip: req.ip });
   res.status(404).json({
     success: false,
     error: 'API route not found'
@@ -84,7 +90,14 @@ app.use('/api/*', (req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err.stack);
+  // USE LOGGER INSTEAD OF CONSOLE.ERROR
+  logger.error(err.message, {
+    stack: err.stack,
+    status: err.status || 500,
+    path: req.originalUrl,
+    ip: req.ip
+  });
+  
   res.status(err.status || 500).json({
     success: false,
     error: err.message || 'Internal server error'
@@ -93,9 +106,9 @@ app.use((err, req, res, next) => {
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('SIGTERM received. Closing server gracefully...');
+  logger.info('SIGTERM received. Closing server gracefully...');
   server.close(() => {
-    console.log('Server closed');
+    logger.info('Server closed');
     process.exit(0);
   });
 });
@@ -109,25 +122,28 @@ const startServer = async () => {
     
     // Start Express server
     const server = app.listen(PORT, '0.0.0.0', () => {
-      console.log(`✅ Server running on port ${PORT}`);
-      console.log(`✅ Environment: ${process.env.NODE_ENV}`);
+      logger.info(`Server running on port ${PORT}`);
+      logger.info(`Environment: ${process.env.NODE_ENV}`);
       if (IS_PROD) {
-        console.log(`✅ CORS Origin enabled for: ${process.env.CORS_ORIGIN}`);
+        logger.info(`CORS Origin enabled for: ${process.env.CORS_ORIGIN}`);
       } else {
-        console.log('✅ CORS enabled for development (any origin)');
+        logger.info('CORS enabled for development (any origin)');
       }
     });
     
     // Start daily data sync job
     if (IS_PROD) {
-      console.log('Starting data sync job...');
+      logger.info('Starting data sync job...');
       startDataSync();
-      console.log('✅ Data sync job started');
+      logger.info('Data sync job started');
     }
 
     return server;
   } catch (error) {
-    console.error('❌ Server startup error:', error);
+    logger.error('Server startup error', { 
+      message: error.message, 
+      stack: error.stack 
+    });
     process.exit(1);
   }
 };

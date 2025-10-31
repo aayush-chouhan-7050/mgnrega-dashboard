@@ -16,9 +16,9 @@ const InfoSection = ({ language }) => {
   const t = content[language];
 
   return (
-    <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded">
+    <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg shadow-sm">
       <div className="flex items-start gap-3">
-        <Info className="text-blue-600 flex-shrink-0 mt-1" size={24} />
+        <Info className="text-blue-600 flex-shrink-0 mt-1" size={24} aria-hidden="true" />
         <div>
           <h3 className="font-semibold text-blue-900 mb-1">{t.title}</h3>
           <p className="text-blue-800 text-sm leading-relaxed">{t.text}</p>
