@@ -21,6 +21,47 @@ export const getDistricts = async () => {
   }
 };
 
+// *** DEPRECATED/REPLACED ***
+// We now use getHistoryByYear('12m')
+export const getDistrictHistory = async (districtCode) => {
+  try {
+    // const response = await api.get(`/districts/${districtCode}/history`);
+    // Reroute old call to new flexible endpoint
+    const response = await api.get(`/districts/${districtCode}/history/12m`);
+    return response.data;
+  } catch (error) {
+    console.error('Get district history error:', error);
+    throw error;
+  }
+};
+
+// *** NEW FUNCTION ***
+// yearKey can be '12m', 'all', or '2020-2021'
+export const getHistoryByYear = async (districtCode, yearKey) => {
+  try {
+    const response = await api.get(`/districts/${districtCode}/history/${yearKey}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Get district history for ${yearKey} error:`, error);
+    throw error;
+  }
+};
+
+// *** NEW FUNCTION ***
+export const getAvailableFinancialYears = async (districtCode) => {
+  try {
+    const response = await api.get(`/districts/${districtCode}/financial-years`);
+    return response.data;
+  } catch (error) {
+    console.error('Get financial years error:', error);
+    throw error;
+  }
+};
+
+
+// (Other functions like getDistrictCurrent, compareDistricts, detectDistrictFromLocation, healthCheck remain the same)
+// ...
+
 // Get district current data
 export const getDistrictCurrent = async (districtCode) => {
   try {
@@ -28,17 +69,6 @@ export const getDistrictCurrent = async (districtCode) => {
     return response.data;
   } catch (error) {
     console.error('Get district current data error:', error);
-    throw error;
-  }
-};
-
-// Get district historical data
-export const getDistrictHistory = async (districtCode) => {
-  try {
-    const response = await api.get(`/districts/${districtCode}/history`);
-    return response.data;
-  } catch (error) {
-    console.error('Get district history error:', error);
     throw error;
   }
 };
@@ -75,5 +105,6 @@ export const healthCheck = async () => {
     throw error;
   }
 };
+
 
 export default api;

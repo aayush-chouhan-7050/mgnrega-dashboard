@@ -6,46 +6,46 @@ const router = express.Router();
 
 // Chhattisgarh districts configuration
 export const DISTRICTS_CONFIG = [
-  { code: 'raipur', name: { en: 'Raipur', hi: 'रायपुर' }, coordinates: { lat: 21.2514, lng: 81.6296 } },
-  { code: 'bilaspur', name: { en: 'Bilaspur', hi: 'बिलासपुर' }, coordinates: { lat: 22.0797, lng: 82.1409 } },
-  { code: 'durg', name: { en: 'Durg', hi: 'दुर्ग' }, coordinates: { lat: 21.1904, lng: 81.2849 } },
-  { code: 'rajnandgaon', name: { en: 'RAJNANDAGON', hi: 'राजनांदगांव' }, coordinates: { lat: 21.0974, lng: 81.0379 } },
-  { code: 'korba', name: { en: 'Korba', hi: 'कोरबा' }, coordinates: { lat: 22.3595, lng: 82.7501 } },
-  { code: 'raigarh', name: { en: 'Raigarh', hi: 'रायगढ़' }, coordinates: { lat: 21.8974, lng: 83.3950 } },
-  { code: 'janjgir-champa', name: { en: 'Janjgir-Champa', hi: 'जांजगीर-चांपा' }, coordinates: { lat: 22.0156, lng: 82.5772 } },
-  { code: 'mahasamund', name: { en: 'Mahasamund', hi: 'महासमुंद' }, coordinates: { lat: 21.1078, lng: 82.0984 } },
-  { code: 'bastar', name: { en: 'Bastar', hi: 'बस्तर' }, coordinates: { lat: 19.0688, lng: 81.9598 } },
-  { code: 'jashpur', name: { en: 'Jashpur', hi: 'जशपुर' }, coordinates: { lat: 22.8858, lng: 84.1411 } },
-  { code: 'balod', name: { en: 'Balod', hi: 'बालोद' }, coordinates: { lat: 20.728, lng: 81.206 } },
+  { code: 'balod', name: { en: 'BALOD', hi: 'बालोद' }, coordinates: { lat: 20.728, lng: 81.206 } },
   { code: 'baloda-bazar', name: { en: 'BALODA BAZAR', hi: 'बलौदा बाजार' }, coordinates: { lat: 21.65, lng: 82.17 } },
-  { code: 'balrampur', name: { en: 'Balrampur', hi: 'बलरामपुर' }, coordinates: { lat: 23.61, lng: 83.60 } },
-  { code: 'bemetara', name: { en: 'Bemetara', hi: 'बेमेतरा' }, coordinates: { lat: 21.72, lng: 81.53 } },
-  { code: 'bijapur', name: { en: 'Bijapur', hi: 'बीजापुर' }, coordinates: { lat: 18.79, lng: 80.82 } },
-  { code: 'dantewada', name: { en: 'DANTEWADA', hi: 'दंतेवाड़ा' }, coordinates: { lat: 18.90, lng: 81.35 } },
-  { code: 'dhamtari', name: { en: 'Dhamtari', hi: 'धमतरी' }, coordinates: { lat: 20.71, lng: 81.55 } },
+  { code: 'balrampur', name: { en: 'BALRAMPUR', hi: 'बलरामपुर' }, coordinates: { lat: 23.61, lng: 83.6 } },
+  { code: 'bastar', name: { en: 'BASTAR', hi: 'बस्तर' }, coordinates: { lat: 19.0688, lng: 81.9598 } },
+  { code: 'bemetara', name: { en: 'BEMETARA', hi: 'बेमेतरा' }, coordinates: { lat: 21.72, lng: 81.53 } },
+  { code: 'bijapur', name: { en: 'BIJAPUR', hi: 'बीजापुर' }, coordinates: { lat: 18.79, lng: 80.82 } },
+  { code: 'bilaspur', name: { en: 'BILASPUR', hi: 'बिलासपुर' }, coordinates: { lat: 22.0797, lng: 82.1409 } },
+  { code: 'dantewada', name: { en: 'DANTEWADA', hi: 'दंतेवाड़ा' }, coordinates: { lat: 18.9, lng: 81.35 } },
+  { code: 'dhamtari', name: { en: 'DHAMTARI', hi: 'धमतरी' }, coordinates: { lat: 20.71, lng: 81.55 } },
+  { code: 'durg', name: { en: 'DURG', hi: 'दुर्ग' }, coordinates: { lat: 21.1904, lng: 81.2849 } },
   { code: 'gariaband', name: { en: 'GARIYABAND', hi: 'गरियाबंद' }, coordinates: { lat: 20.63, lng: 82.06 } },
-  { code: 'gaurela-pendra-marwahi', name: { en: 'GAURELA PENDRA MARWAHI', hi: 'गौरेला-पेंड्रा-मरवाही' }, coordinates: { lat: 22.75, lng: 81.90 } },
+  { code: 'gaurela-pendra-marwahi', name: { en: 'GAURELA PENDRA MARWAHI', hi: 'गौरेला-पेंड्रा-मरवाही' }, coordinates: { lat: 22.75, lng: 81.9 } },
+  { code: 'janjgir-champa', name: { en: 'JANJGIR-CHAMPA', hi: 'जांजगीर-चांपा' }, coordinates: { lat: 22.0156, lng: 82.5772 } },
+  { code: 'jashpur', name: { en: 'JASHPUR', hi: 'जशपुर' }, coordinates: { lat: 22.8858, lng: 84.1411 } },
   { code: 'kanker', name: { en: 'KANKER', hi: 'कांकेर' }, coordinates: { lat: 20.27, lng: 81.49 } },
   { code: 'kabirdham', name: { en: 'KAWARDHA', hi: 'कबीरधाम' }, coordinates: { lat: 22.09, lng: 81.33 } },
   { code: 'khairagarh-chhuikhadan-gandai', name: { en: 'KHAIRAGARH CHHUIKHADAN GANDAI', hi: 'खैरागढ़-छुईखदान-गंडई' }, coordinates: { lat: 21.42, lng: 80.98 } },
-  { code: 'kondagaon', name: { en: 'Kondagaon', hi: 'कोंडागांव' }, coordinates: { lat: 19.60, lng: 81.67 } },
+  { code: 'kondagaon', name: { en: 'KONDAGAON', hi: 'कोंडागांव' }, coordinates: { lat: 19.6, lng: 81.67 } },
+  { code: 'korba', name: { en: 'KORBA', hi: 'कोरबा' }, coordinates: { lat: 22.3595, lng: 82.7501 } },
   { code: 'koriya', name: { en: 'KOREA', hi: 'कोरिया' }, coordinates: { lat: 23.27, lng: 82.25 } },
-  { code: 'manendragarh-chirmiri-bharatpur', name: { en: 'MANENDRAGARH CHIRMIRI BHARATPUR', hi: 'मनेंद्रगढ़-चिरमिरी-भरतपुर' }, coordinates: { lat: 23.21, lng: 82.20 } },
+  { code: 'mahasamund', name: { en: 'MAHASAMUND', hi: 'महासमुंद' }, coordinates: { lat: 21.1078, lng: 82.0984 } },
+  { code: 'manendragarh-chirmiri-bharatpur', name: { en: 'MANENDRAGARH CHIRMIRI BHARATPUR', hi: 'मनेंद्रगढ़-चिरमिरी-भरतपुर' }, coordinates: { lat: 23.21, lng: 82.2 } },
   { code: 'mohla-manpur-ambagarh-chowki', name: { en: 'MOHLA MANPUR AMBAGARH CHOWKI', hi: 'मोहला-मानपुर-अंबागढ़ चौकी' }, coordinates: { lat: 20.59, lng: 80.73 } },
-  { code: 'mungeli', name: { en: 'Mungeli', hi: 'मुंगेली' }, coordinates: { lat: 22.07, lng: 81.68 } },
-  { code: 'narayanpur', name: { en: 'Narayanpur', hi: 'नारायणपुर' }, coordinates: { lat: 19.72, lng: 81.25 } },
-  { code: 'sukma', name: { en: 'Sukma', hi: 'सुकमा' }, coordinates: { lat: 18.40, lng: 81.67 } },
-  { code: 'surajpur', name: { en: 'Surajpur', hi: 'सूरजपुर' }, coordinates: { lat: 23.22, lng: 82.85 } },
-  { code: 'surguja', name: { en: 'Surguja', hi: 'सरगुजा' }, coordinates: { lat: 23.12, lng: 83.20 } },
-  { code: 'sakti', name: { en: 'Sakti', hi: 'सक्ति' }, coordinates: { lat: 22.03, lng: 82.96 } },
-  { code: 'sarangarh-bilaigarh', name: { en: 'SARANGARH BILAIGARH', hi: 'सारंगढ़-बिलाईगढ़' }, coordinates: { lat: 21.59, lng: 83.08 } }
+  { code: 'mungeli', name: { en: 'MUNGELI', hi: 'मुंगेली' }, coordinates: { lat: 22.07, lng: 81.68 } },
+  { code: 'narayanpur', name: { en: 'NARAYANPUR', hi: 'नारायणपुर' }, coordinates: { lat: 19.72, lng: 81.25 } },
+  { code: 'raigarh', name: { en: 'RAIGARH', hi: 'रायगढ़' }, coordinates: { lat: 21.8974, lng: 83.395 } },
+  { code: 'raipur', name: { en: 'RAIPUR', hi: 'रायपुर' }, coordinates: { lat: 21.2514, lng: 81.6296 } },
+  { code: 'rajnandgaon', name: { en: 'RAJNANDAGON', hi: 'राजनांदगांव' }, coordinates: { lat: 21.0974, lng: 81.0379 } },
+  { code: 'sakti', name: { en: 'SAKTI', hi: 'सक्ति' }, coordinates: { lat: 22.03, lng: 82.96 } },
+  { code: 'sarangarh-bilaigarh', name: { en: 'SARANGARH BILAIGARH', hi: 'सारंगढ़-बिलाईगढ़' }, coordinates: { lat: 21.59, lng: 83.08 } },
+  { code: 'sukma', name: { en: 'SUKMA', hi: 'सुकमा' }, coordinates: { lat: 18.4, lng: 81.67 } },
+  { code: 'surajpur', name: { en: 'SURAJPUR', hi: 'सूरजपुर' }, coordinates: { lat: 23.22, lng: 82.85 } },
+  { code: 'surguja', name: { en: 'SURGUJA', hi: 'सरगुजा' }, coordinates: { lat: 23.12, lng: 83.2 } }
 ];
+
 
 // GET /api/districts/
 // Get all districts list
 router.get('/', async (req, res) => {
   try {
-    // Return the static config, as it contains names and coordinates
     res.json({ 
       success: true, 
       districts: DISTRICTS_CONFIG 
@@ -60,13 +60,12 @@ router.get('/', async (req, res) => {
 });
 
 // GET /api/districts/:districtCode/current
-// Get specific district current data
+// Get specific district *latest* data (This is now used for the "Last Updated" text)
 router.get('/:districtCode/current', async (req, res) => {
   try {
     const { districtCode } = req.params;
     const cacheKey = `district:${districtCode}:current`;
     
-    // Check cache first
     let cachedData = await getCachedData(cacheKey);
     if (cachedData) {
       return res.json({ 
@@ -76,18 +75,10 @@ router.get('/:districtCode/current', async (req, res) => {
       });
     }
     
-    // Get current month data from database
-    const now = new Date();
-    const currentMonth = now.toLocaleString('en-US', { month: 'short' });
-    const currentYear = now.getFullYear();
+    let data = await DistrictData.findOne({ districtCode })
+      .sort({ recordDate: -1 })
+      .lean();
     
-    let data = await DistrictData.findOne({ 
-      districtCode, 
-      month: currentMonth, 
-      year: currentYear 
-    }).lean();
-    
-    // If no data, return 404. DO NOT create sample data.
     if (!data) {
       return res.status(404).json({
         success: false,
@@ -95,7 +86,6 @@ router.get('/:districtCode/current', async (req, res) => {
       });
     }
     
-    // Cache the result (uses default 24h TTL)
     await setCachedData(cacheKey, data); 
     
     res.json({ 
@@ -112,14 +102,55 @@ router.get('/:districtCode/current', async (req, res) => {
   }
 });
 
-// GET /api/districts/:districtCode/history
-// Get district historical data (last 12 months)
-router.get('/:districtCode/history', async (req, res) => {
+// *** NEW ENDPOINT ***
+// GET /api/districts/:districtCode/financial-years
+// Get a list of available financial years for filtering
+router.get('/:districtCode/financial-years', async (req, res) => {
   try {
     const { districtCode } = req.params;
-    const cacheKey = `district:${districtCode}:history`;
+    const cacheKey = `district:${districtCode}:finYears`;
+
+    let cachedData = await getCachedData(cacheKey);
+    if (cachedData) {
+      return res.json({ success: true, data: cachedData, source: 'cache' });
+    }
+
+    // Find all distinct "year" values (e.g., 2018, 2019, 2020)
+    const distinctYears = await DistrictData.distinct('year', { districtCode });
+
+    if (!distinctYears || distinctYears.length === 0) {
+      return res.json({ success: true, data: [] });
+    }
+
+    // Sort them numerically
+    distinctYears.sort((a, b) => b - a); // Descending (latest first)
+
+    // Format them as "2020-2021"
+    const formattedYears = distinctYears.map(year => `${year}-${year + 1}`);
+
+    await setCachedData(cacheKey, formattedYears, 86400); // Cache for 1 day
+
+    res.json({ success: true, data: formattedYears, source: 'database' });
+  } catch (error) {
+    console.error('Get financial years error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
+// *** MODIFIED ENDPOINT ***
+// This replaces the old '/history' endpoint with a more flexible one
+// GET /api/districts/:districtCode/history/:yearKey
+// Get district historical data. 
+// yearKey can be:
+// '12m'   (Last 12 months)
+// 'all'   (All-time history)
+// '2020-2021' (Specific financial year)
+router.get('/:districtCode/history/:yearKey', async (req, res) => {
+  try {
+    const { districtCode, yearKey } = req.params;
+    const cacheKey = `district:${districtCode}:history:${yearKey}`;
     
-    // Check cache
     let cachedData = await getCachedData(cacheKey);
     if (cachedData) {
       return res.json({ 
@@ -129,24 +160,40 @@ router.get('/:districtCode/history', async (req, res) => {
       });
     }
     
-    // Get last 12 months data
-    let data = await DistrictData.find({ districtCode })
-      .sort({ year: -1, month: -1 }) // Sorting is complex with month names, ensure this works
-      .limit(12)
+    let query = { districtCode };
+    let limit = 0; // 0 = no limit
+
+    if (yearKey === '12m') {
+      limit = 12;
+    } else if (yearKey === 'all') {
+      limit = 0; // No limit
+    } else {
+      // It's a financial year, e.g., "2020-2021"
+      const startYear = parseInt(yearKey.split('-')[0]);
+      const endYear = startYear + 1;
+      
+      // Fin year is April 1 (startYear) to March 31 (endYear)
+      const startDate = new Date(startYear, 3, 1); // April 1st
+      const endDate = new Date(endYear, 3, 0);   // March 31st
+
+      query.recordDate = { $gte: startDate, $lte: endDate };
+    }
+    
+    let data = await DistrictData.find(query)
+      .sort({ recordDate: -1 }) // Always sort latest-first
+      .limit(limit)
       .lean();
     
-    // If no data, return empty array. DO NOT create sample data.
     if (data.length === 0) {
       return res.json({
         success: true,
-        data: [], // Return empty array, frontend can handle this
+        data: [],
         source: 'database',
-        message: `No historical data found for ${districtCode}.`
+        message: `No historical data found for ${districtCode} with filter ${yearKey}.`
       });
     }
     
-    // Cache the result
-    await setCachedData(cacheKey, data);
+    await setCachedData(cacheKey, data, 3600); // Cache for 1 hour
     
     res.json({ 
       success: true, 
@@ -162,13 +209,13 @@ router.get('/:districtCode/history', async (req, res) => {
   }
 });
 
+
 // GET /api/districts/compare/all
-// Compare all districts (for comparative analysis)
+// (This endpoint remains unchanged, still shows latest for all districts)
 router.get('/compare/all', async (req, res) => {
   try {
     const cacheKey = 'districts:compare:all';
     
-    // Check cache
     let cachedData = await getCachedData(cacheKey);
     if (cachedData) {
       return res.json({ 
@@ -178,36 +225,37 @@ router.get('/compare/all', async (req, res) => {
       });
     }
     
-    const now = new Date();
-    const currentMonth = now.toLocaleString('en-US', { month: 'short' });
-    const currentYear = now.getFullYear();
+    const latestDataPerDistrict = await DistrictData.aggregate([
+      { $sort: { recordDate: -1 } },
+      {
+        $group: {
+          _id: '$districtCode',
+          latestRecord: { $first: '$$ROOT' }
+        }
+      },
+      { $replaceRoot: { newRoot: '$latestRecord' } }
+    ]);
     
-    const compareData = [];
-    
-    for (const district of DISTRICTS_CONFIG) {
-      let data = await DistrictData.findOne({
-        districtCode: district.code,
-        month: currentMonth,
-        year: currentYear
-      }).lean();
+    const compareData = DISTRICTS_CONFIG.map(district => {
+      const foundData = latestDataPerDistrict.find(
+        d => d.districtCode === district.code
+      );
       
-      // If no data, push a null/empty entry instead of creating fake data
-      if (!data) {
-        compareData.push({
+      if (!foundData) {
+        return {
           districtCode: district.code,
           districtName: district.name,
-          data: null // Frontend can show "N/A"
-        });
+          data: null
+        };
       } else {
-         compareData.push({
+         return {
           districtCode: district.code,
           districtName: district.name,
-          data: data.data
-        });
+          data: foundData.data
+        };
       }
-    }
+    });
     
-    // Cache for 2 hours
     await setCachedData(cacheKey, compareData, 7200);
     
     res.json({ 

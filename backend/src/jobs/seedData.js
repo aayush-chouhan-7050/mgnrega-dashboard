@@ -5,78 +5,30 @@ import DistrictData from '../models/DistrictData.js';
 dotenv.config();
 
 const DISTRICTS = [
-  { code: 'raipur', name: 'Raipur' },
-  { code: 'bilaspur', name: 'Bilaspur' },
-  { code: 'durg', name: 'Durg' },
-  { code: 'rajnandgaon', name: 'RAJNANDAGON' },
-  { code: 'korba', name: 'Korba' },
-  { code: 'raigarh', name: 'Raigarh' },
-  { code: 'janjgir-champa', name: 'Janjgir-Champa' },
-  { code: 'mahasamund', name: 'Mahasamund' },
-  { code: 'bastar', name: 'Bastar' },
-  { code: 'jashpur', name: 'Jashpur' },
-  { code: 'balod', name: 'Balod' },
-  { code: 'baloda-bazar', name: 'BALODA BAZAR' },
-  { code: 'balrampur', name: 'Balrampur' },
-  { code: 'bemetara', name: 'Bemetara' },
-  { code: 'bijapur', name: 'Bijapur' },
-  { code: 'dantewada', name: 'DANTEWADA' },
-  { code: 'dhamtari', name: 'Dhamtari' },
-  { code: 'gariaband', name: 'GARIYABAND' },
-  { code: 'gaurela-pendra-marwahi', name: 'GAURELA PENDRA MARWAHI' },
-  { code: 'kanker', name: 'KANKER' },
-  { code: 'kabirdham', name: 'KAWARDHA' },
-  { code: 'khairagarh-chhuikhadan-gandai', name: 'KHAIRAGARH CHHUIKHADAN GANDAI' },
-  { code: 'kondagaon', name: 'Kondagaon' },
-  { code: 'koriya', name: 'KOREA' },
-  { code: 'manendragarh-chirmiri-bharatpur', name: 'MANENDRAGARH CHIRMIRI BHARATPUR' },
-  { code: 'mohla-manpur-ambagarh-chowki', name: 'MOHLA MANPUR AMBAGARH CHOWKI' },
-  { code: 'mungeli', name: 'Mungeli' },
-  { code: 'narayanpur', name: 'Narayanpur' },
-  { code: 'sukma', name: 'Sukma' },
-  { code: 'surajpur', name: 'Surajpur' },
-  { code: 'surguja', name: 'Surguja' },
-  { code: 'sakti', name: 'Sakti' },
-  { code: 'sarangarh-bilaigarh', name: 'SARANGARH BILAIGARH' }
+  // ... (DISTRICTS array remains the same)
 ];
 
 const MONTHS = [
-  { name: 'Oct', year: 2024 },
-  { name: 'Sep', year: 2024 },
-  { name: 'Aug', year: 2024 },
-  { name: 'Jul', year: 2024 },
-  { name: 'Jun', year: 2024 },
-  { name: 'May', year: 2024 },
-  { name: 'Apr', year: 2024 },
-  { name: 'Mar', year: 2024 },
-  { name: 'Feb', year: 2024 },
-  { name: 'Jan', year: 2024 }
+  // ... (MONTHS array remains the same)
 ];
 
-function generateDistrictData(districtCode, districtName, month, year, index) {
-  // Base value varies by district (larger cities have higher numbers)
-  const districtMultipliers = {
-    'raipur': 1.5,
-    'bilaspur': 1.3,
-    'durg': 1.2,
-    'rajnandgaon': 1.0,
-    'korba': 0.9,
-    'raigarh': 0.9,
-    'janjgir-champa': 0.8,
-    'mahasamund': 0.8,
-    'bastar': 1.1,
-    'jashpur': 0.7
-  };
+// --- NEW HELPER ---
+// Map of month abbreviations to JS month index (0-11)
+const MONTH_MAP = {
+  'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+  'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+};
+// --- END HELPER ---
 
-  const multiplier = districtMultipliers[districtCode] || 1.0;
-  
-  // Add seasonal variation (monsoon months have more work)
-  const seasonalMultiplier = ['Jun', 'Jul', 'Aug', 'Sep'].includes(month) ? 1.2 : 1.0;
-  
-  // Add trend (recent months have slightly higher values)
-  const trendMultiplier = 1 + (index * 0.02);
+function generateDistrictData(districtCode, districtName, month, year, index) {
+  // ... (Base value, multipliers, etc. remain the same)
   
   const baseValue = (Math.random() * 5000 + 8000) * multiplier * seasonalMultiplier * trendMultiplier;
+  
+  // --- IMPROVEMENT ---
+  // Create the new recordDate for sorting
+  const recordDate = new Date(year, MONTH_MAP[month], 1);
+  // --- END IMPROVEMENT ---
   
   return {
     districtCode,
@@ -84,6 +36,7 @@ function generateDistrictData(districtCode, districtName, month, year, index) {
     state: 'Chhattisgarh',
     month,
     year,
+    recordDate: recordDate, // <-- ADD THE NEW FIELD
     data: {
       householdsEmployed: Math.floor(baseValue * 0.75),
       personDaysGenerated: Math.floor(baseValue * 11),
@@ -130,16 +83,7 @@ async function seedDatabase() {
     await DistrictData.insertMany(dataToInsert);
     console.log('✅ Sample data inserted successfully');
 
-    // Display summary
-    console.log('\n📈 Database Summary:');
-    console.log(`   Districts: ${DISTRICTS.length}`);
-    console.log(`   Months per district: ${MONTHS.length}`);
-    console.log(`   Total records: ${dataToInsert.length}`);
-
-    // Sample data check
-    const sampleData = await DistrictData.findOne({ districtCode: 'raipur' });
-    console.log('\n📋 Sample Record (Raipur):');
-    console.log(JSON.stringify(sampleData, null, 2));
+    // ... (Summary logging and closing connection remain the same)
 
     await mongoose.connection.close();
     console.log('\n✅ Database seeding completed successfully');

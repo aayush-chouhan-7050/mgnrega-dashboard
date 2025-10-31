@@ -22,6 +22,12 @@ const districtDataSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  // NEW FIELD: For correct date-based sorting
+  recordDate: {
+    type: Date,
+    required: true,
+    index: true
+  },
   data: {
     householdsEmployed: Number,
     personDaysGenerated: Number,
@@ -39,6 +45,8 @@ const districtDataSchema = new mongoose.Schema({
   timestamps: true
 });
 
-districtDataSchema.index({ districtCode: 1, year: 1, month: 1 });
+// UPDATED INDEX: Composite index for the most common queries
+districtDataSchema.index({ districtCode: 1, recordDate: -1 });
+districtDataSchema.index({ districtCode: 1, year: 1, month: 1 }); // Keep old index for upserts
 
 export default mongoose.model('DistrictData', districtDataSchema);

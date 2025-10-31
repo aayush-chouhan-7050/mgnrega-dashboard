@@ -1,17 +1,8 @@
 import axios from 'axios';
-
-const DISTRICTS_COORDINATES = {
-  'raipur': { lat: 21.2514, lng: 81.6296, radius: 50 },
-  'bilaspur': { lat: 22.0797, lng: 82.1409, radius: 50 },
-  'durg': { lat: 21.1904, lng: 81.2849, radius: 40 },
-  'rajnandgaon': { lat: 21.0974, lng: 81.0379, radius: 40 },
-  'korba': { lat: 22.3595, lng: 82.7501, radius: 45 },
-  'raigarh': { lat: 21.8974, lng: 83.3950, radius: 45 },
-  'janjgir-champa': { lat: 22.0156, lng: 82.5772, radius: 40 },
-  'mahasamund': { lat: 21.1078, lng: 82.0984, radius: 40 },
-  'bastar': { lat: 19.0688, lng: 81.9598, radius: 60 },
-  'jashpur': { lat: 22.8858, lng: 84.1411, radius: 45 }
-};
+// --- IMPROVEMENT ---
+// Import the complete list of districts from the single source of truth
+import { DISTRICTS_CONFIG } from '../routes/districts.js';
+// --- END IMPROVEMENT ---
 
 // Calculate distance between two coordinates (Haversine formula)
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -38,14 +29,23 @@ export const findNearestDistrict = (lat, lng) => {
   let nearestDistrict = null;
   let minDistance = Infinity;
   
-  for (const [districtCode, coords] of Object.entries(DISTRICTS_COORDINATES)) {
-    const distance = calculateDistance(lat, lng, coords.lat, coords.lng);
+  // --- IMPROVEMENT ---
+  // Iterate over the imported 33-district config instead of a stale list
+  for (const district of DISTRICTS_CONFIG) {
+    const { code, coordinates } = district;
+    // Skip districts that might not have coordinates in the config
+    if (!coordinates || coordinates.lat == null || coordinates.lng == null) {
+      continue; 
+    }
+
+    const distance = calculateDistance(lat, lng, coordinates.lat, coordinates.lng);
     
     if (distance < minDistance) {
       minDistance = distance;
-      nearestDistrict = districtCode;
+      nearestDistrict = code;
     }
   }
+  // --- END IMPROVEMENT ---
   
   return {
     districtCode: nearestDistrict,
@@ -110,18 +110,6 @@ export const detectDistrict = async (lat, lng) => {
   }
 };
 
-// Validate if coordinates are within Chhattisgarh bounds
-export const isInChhattisgarh = (lat, lng) => {
-  // Approximate bounds of Chhattisgarh
-  const bounds = {
-    north: 24.0,
-    south: 17.5,
-    east: 84.5,
-    west: 80.0
-  };
-  
-  return lat >= bounds.south && 
-         lat <= bounds.north && 
-         lng >= bounds.west && 
-         lng <= bounds.east;
-};
+// --- IMPROVEMENT ---
+// Removed unused isInChhattisgarh function
+// --- END IMPROVEMENT ---
