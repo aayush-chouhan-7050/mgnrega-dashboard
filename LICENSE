@@ -1,0 +1,86 @@
+MIT License
+
+Copyright (c) 2025 Aayush Chouhan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+ADDITIONAL TERMS FOR DATA USAGE:
+
+1. DATA SOURCE ATTRIBUTION
+   This software uses data from the Government of India's Open Data Platform 
+   (data.gov.in). Users of this software must comply with data.gov.in's terms 
+   of service and provide appropriate attribution when using or redistributing 
+   the data.
+
+2. GOVERNMENT DATA DISCLAIMER
+   The MGNREGA data displayed in this application is sourced from data.gov.in 
+   and is subject to the terms and conditions of the Government of India. The 
+   authors and contributors of this software are not responsible for the 
+   accuracy, completeness, or timeliness of the government data.
+
+3. NO OFFICIAL ENDORSEMENT
+   This software is an independent project and is not officially endorsed by, 
+   affiliated with, or sponsored by the Ministry of Rural Development, 
+   Government of India, or any other government entity.
+
+4. GEOGRAPHIC DATA
+   Reverse geocoding services are provided by OpenStreetMap Nominatim. Users 
+   must comply with OpenStreetMap's Nominatim Usage Policy available at:
+   https://operations.osmfoundation.org/policies/nominatim/
+
+5. THIRD-PARTY SERVICES
+   This software integrates with third-party services (data.gov.in, 
+   OpenStreetMap). Users are responsible for complying with the terms of 
+   service of these platforms.
+
+6. PRIVACY & DATA COLLECTION
+   - This software uses browser geolocation with user permission
+   - Location data is processed server-side for district detection only
+   - No personal data is stored or transmitted to third parties
+   - Users should review the privacy policy if deploying this software publicly
+
+7. ACCESSIBILITY COMMITMENT
+   This software aims to comply with WCAG 2.1 Level AA accessibility standards. 
+   If you encounter accessibility issues, please report them via GitHub Issues.
+
+---
+
+HINDI / हिंदी
+
+एमआईटी लाइसेंस
+
+कॉपीराइट (c) 2025 आयुष चौहान
+
+इस सॉफ़्टवेयर और संबंधित दस्तावेज़ फ़ाइलों ("सॉफ़्टवेयर") की प्रति प्राप्त करने 
+वाले किसी भी व्यक्ति को बिना किसी प्रतिबंध के सॉफ़्टवेयर में व्यवहार करने की 
+अनुमति निःशुल्क प्रदान की जाती है, जिसमें उपयोग, प्रतिलिपि, संशोधन, विलय, 
+प्रकाशन, वितरण, उपलाइसेंस और/या सॉफ़्टवेयर की प्रतियां बेचने का अधिकार शामिल है।
+
+उपरोक्त कॉपीराइट नोटिस और यह अनुमति नोटिस सॉफ़्टवेयर की सभी प्रतियों या महत्वपूर्ण 
+भागों में शामिल किया जाएगा।
+
+सॉफ़्टवेयर "जैसा है" प्रदान किया जाता है, बिना किसी प्रकार की वारंटी के, व्यक्त या 
+निहित, जिसमें व्यापारिकता, किसी विशेष उद्देश्य के लिए उपयुक्तता और उल्लंघन की 
+वारंटी शामिल है लेकिन इन्हीं तक सीमित नहीं है।
+
+---
+
+Last Updated: November 1, 2025

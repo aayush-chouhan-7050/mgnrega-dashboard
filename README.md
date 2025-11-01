@@ -1,37 +1,209 @@
 # 🇮🇳 MGNREGA Dashboard - Chhattisgarh
 
-A production-ready web application for rural citizens of Chhattisgarh to track and understand MGNREGA (Mahatma Gandhi National Rural Employment Guarantee Act) program performance in their districts.
+[![Production Ready](https://img.shields.io/badge/status-production--ready-brightgreen.svg)](https://mgnrega-dash.duckdns.org/)
+[![React](https://img.shields.io/badge/React-18.2-blue.svg)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-7.0-success.svg)](https://www.mongodb.com/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## 🎯 Project Overview
+A production-ready, accessible web application designed for rural citizens of Chhattisgarh to track and understand MGNREGA (Mahatma Gandhi National Rural Employment Guarantee Act) program performance across all 33 districts.
 
-This dashboard makes MGNREGA data accessible to low-literacy rural populations through:
-- **Visual-first design** with icons and charts
-- **Multilingual support** (English & Hindi)
-- **Location-based district detection**
-- **Historical performance tracking**
-- **Simple, intuitive interface**
+## 🌐 Live Demo
+
+**[https://mgnrega-dash.duckdns.org/](https://mgnrega-dash.duckdns.org/)**
+
+---
+
+## 📋 Table of Contents
+
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [Architecture](#-architecture)
+- [Technology Stack](#-technology-stack)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Local Development](#local-development)
+  - [Production Deployment](#production-deployment)
+- [API Documentation](#-api-documentation)
+- [Environment Variables](#-environment-variables)
+- [Maintenance & Operations](#-maintenance--operations)
+- [Accessibility Features](#-accessibility-features)
+- [Performance Optimizations](#-performance-optimizations)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
+## 🎯 Overview
+
+This dashboard makes critical MGNREGA employment data accessible to low-literacy rural populations through:
+
+- **🎨 Visual-First Design**: Large icons, color-coded metrics, and minimal text
+- **🌏 Bilingual Support**: Complete interface in English and Hindi (Devanagari)
+- **📍 Smart Location Detection**: Automatic district identification via GPS
+- **📊 Historical Analytics**: Multi-year trend analysis and comparisons
+- **♿ Accessibility**: WCAG 2.1 Level AA compliant with ARIA labels
+- **📱 Mobile Responsive**: Optimized for devices from 375px to 1920px+
+
+**Target Users**: Rural citizens, MGNREGA workers, district officials, researchers, and policy makers
+
+---
+
+## ✨ Key Features
+
+### For End Users
+
+#### 1. **Multi-District Coverage**
+- All 33 districts of Chhattisgarh
+- Real-time data from data.gov.in API
+- Historical data from 2018 onwards
+
+#### 2. **Flexible Time Filtering**
+- Last 12 Months view
+- All-time historical data
+- Financial year-specific filtering (2018-19 to present)
+
+#### 3. **Intelligent Visualizations**
+- Line charts for monthly trends
+- Bar charts for comparisons
+- District vs. State average benchmarking
+- Automatic chart summaries with insights
+
+#### 4. **Location Services**
+- GPS-based automatic district detection
+- Reverse geocoding with OpenStreetMap
+- Fallback to manual selection
+
+#### 5. **Language Support**
+- Complete UI translation (English/Hindi)
+- Devanagari font optimization
+- Language-aware number formatting
+
+### For System Administrators
+
+#### 1. **Robust Caching**
+- Redis-based response caching
+- 24-hour TTL for district data
+- Configurable cache expiration
+
+#### 2. **Data Synchronization**
+- Daily automated sync at 2 AM IST
+- Manual sync capability via CLI
+- Graceful API failure handling
+
+#### 3. **Monitoring & Logging**
+- Structured JSON logging
+- Separate error log files
+- PM2 process management
+- Health check endpoints
+
+#### 4. **Security**
+- Helmet.js security headers
+- CORS protection
+- Rate limiting (100 req/15min)
+- Input validation
+- XSS prevention
+
+#### 5. **Performance**
+- Gzip compression
+- MongoDB indexing
+- Connection pooling
+- Code splitting for frontend
 
 ---
 
 ## 🏗️ Architecture
 
-### Tech Stack
-- **Frontend**: React 18 + Vite + Tailwind CSS
-- **Backend**: Node.js + Express
-- **Database**: MongoDB 7.0
-- **Cache**: Redis
-- **Server**: AWS EC2 (Ubuntu 22.04, 16GB RAM)
-- **Process Manager**: PM2
-- **Web Server**: Nginx
+### System Design
 
-### Key Design Decisions
+```
+┌─────────────┐      ┌──────────────┐      ┌─────────────┐
+│   Browser   │─────▶│    Nginx     │─────▶│   Express   │
+│  (React)    │◀─────│  (Reverse    │◀─────│   Backend   │
+└─────────────┘      │   Proxy)     │      └─────────────┘
+                     └──────────────┘            │
+                                                 │
+                     ┌──────────────┐            │
+                     │    Redis     │◀───────────┤
+                     │   (Cache)    │            │
+                     └──────────────┘            │
+                                                 │
+                     ┌──────────────┐            │
+                     │   MongoDB    │◀───────────┤
+                     │  (Database)  │            │
+                     └──────────────┘            │
+                                                 │
+                     ┌──────────────┐            │
+                     │ Data.gov.in  │◀───────────┘
+                     │     API      │
+                     └──────────────┘
+```
 
-1. **Caching Strategy**: Redis caches API responses for 24 hours to handle data.gov.in rate limits
-2. **Database**: MongoDB stores historical data for trend analysis
-3. **Daily Sync**: Cron job fetches latest data from data.gov.in daily at 2 AM
-4. **Geolocation**: Automatic district detection using browser geolocation + reverse geocoding
-5. **Multilingual**: All content available in English and Hindi
-6. **Low-Literacy UX**: Visual cards, minimal text, icon-based navigation
+### Data Flow
+
+1. **User Request** → Nginx receives HTTP request
+2. **Routing** → Nginx proxies `/api/*` to Express backend
+3. **Cache Check** → Backend checks Redis cache
+4. **Cache Hit** → Return cached data (fast path)
+5. **Cache Miss** → Query MongoDB database
+6. **Database Miss** → Fetch from data.gov.in API (fallback)
+7. **Cache Update** → Store result in Redis
+8. **Response** → Return JSON to frontend
+
+### Cron Job Flow
+
+```
+Daily at 2:00 AM IST
+       ↓
+[Data Sync Service]
+       ↓
+Fetch all records for each financial year
+       ↓
+Transform API data to schema format
+       ↓
+Upsert records to MongoDB (by district, month, year)
+       ↓
+Update recordDate field for proper sorting
+       ↓
+[Sync Complete]
+```
+
+---
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **React 18.2** - UI framework
+- **Vite 5.0** - Build tool & dev server
+- **Tailwind CSS 3.4** - Utility-first styling
+- **Recharts 2.10** - Data visualization
+- **Lucide React 0.263** - Icon library
+- **Axios 1.6** - HTTP client
+
+### Backend
+- **Node.js 20.x** - Runtime environment
+- **Express 4.18** - Web framework
+- **Mongoose 8.0** - MongoDB ODM
+- **Redis 4.6** - Caching layer
+- **Node-Cron 3.0** - Job scheduling
+- **Helmet 7.1** - Security middleware
+- **Compression 1.7** - Response compression
+- **Express-Rate-Limit 7.1** - API rate limiting
+
+### Infrastructure
+- **MongoDB 7.0** - NoSQL database
+- **Redis 7.x** - In-memory cache
+- **Nginx** - Reverse proxy & static file server
+- **PM2** - Process manager
+- **Ubuntu 22.04** - Operating system
+- **AWS EC2** - Cloud hosting
+
+### External Services
+- **Data.gov.in API** - MGNREGA data source
+- **OpenStreetMap Nominatim** - Reverse geocoding
+- **Let's Encrypt** - SSL certificates (optional)
 
 ---
 
@@ -42,536 +214,675 @@ mgnrega-dashboard/
 ├── backend/
 │   ├── src/
 │   │   ├── config/
-│   │   │   ├── database.js          # MongoDB connection
-│   │   │   └── redis.js             # Redis connection
+│   │   │   ├── database.js          # MongoDB connection setup
+│   │   │   └── redis.js             # Redis client configuration
 │   │   ├── models/
-│   │   │   └── DistrictData.js      # MongoDB schema
+│   │   │   └── DistrictData.js      # Mongoose schema with indexes
 │   │   ├── routes/
-│   │   │   ├── api.js               # Main API routes
-│   │   │   └── districts.js         # District-specific routes
+│   │   │   ├── api.js               # Health check & stats endpoints
+│   │   │   ├── districts.js         # District data routes
+│   │   │   └── location.js          # Geolocation detection
 │   │   ├── services/
-│   │   │   ├── dataGovService.js    # data.gov.in API integration
-│   │   │   ├── cacheService.js      # Redis caching logic
-│   │   │   └── locationService.js   # Geolocation & geocoding
+│   │   │   ├── dataGovService.js    # Data.gov.in API client
+│   │   │   ├── cacheService.js      # Redis caching wrapper
+│   │   │   └── locationService.js   # GPS & reverse geocoding
 │   │   ├── jobs/
 │   │   │   ├── dataSync.js          # Daily data sync cron job
 │   │   │   └── seedData.js          # Database seeding script
-│   │   └── app.js                   # Express server
+│   │   ├── utils/
+│   │   │   └── logger.js            # Structured logging utility
+│   │   ├── app.js                   # Express app & middleware
+│   │   └── runSync.js               # Standalone sync CLI tool
+│   ├── logs/                        # Auto-generated log files
 │   ├── package.json
-│   └── .env
+│   ├── .env.example
+│   └── .gitignore
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── Dashboard.jsx        # Main dashboard component
-│   │   │   ├── DistrictSelector.jsx # District selection + location
-│   │   │   ├── MetricsCards.jsx     # Key metrics display
+│   │   │   ├── Dashboard.jsx        # Main container component
+│   │   │   ├── DistrictSelector.jsx # District picker + GPS
+│   │   │   ├── MetricsCards.jsx     # KPI cards with ARIA labels
 │   │   │   ├── Charts.jsx           # Recharts visualizations
-│   │   │   ├── InfoSection.jsx      # MGNREGA information
-│   │   │   └── LanguageToggle.jsx   # Language switcher
+│   │   │   ├── ComparisonChart.jsx  # District vs. State chart
+│   │   │   ├── InfoSection.jsx      # MGNREGA explainer
+│   │   │   ├── TimeFilter.jsx       # Date range selector
+│   │   │   ├── LanguageToggle.jsx   # EN/HI switcher
+│   │   │   └── ErrorBoundary.jsx    # Global error handler
 │   │   ├── utils/
-│   │   │   └── api.js               # API client
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── index.css
+│   │   │   └── api.js               # Axios API client
+│   │   ├── App.jsx                  # Root component
+│   │   ├── main.jsx                 # React entry point
+│   │   └── index.css                # Tailwind imports
+│   ├── public/
 │   ├── index.html
-│   ├── vite.config.js
-│   ├── tailwind.config.js
+│   ├── vite.config.js               # Vite configuration
+│   ├── tailwind.config.js           # Tailwind customization
 │   ├── postcss.config.js
 │   ├── package.json
-│   └── .env
+│   ├── .env.example
+│   └── .gitignore
 ├── nginx/
-│   └── mgnrega.conf                 # Nginx configuration
+│   └── mgnrega.conf                 # Nginx site configuration
 ├── deploy.sh                         # Automated deployment script
 ├── .gitignore
-└── README.md
+├── README.md
+└── LICENSE
 ```
 
 ---
 
-## 🚀 Quick Start (Local Development)
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 20.x
-- MongoDB 7.0
-- Redis 7.x
-- Git
 
-### Backend Setup
+Ensure you have the following installed:
+
+- **Node.js 20.x** - [Download](https://nodejs.org/)
+- **MongoDB 7.0+** - [Install Guide](https://www.mongodb.com/docs/manual/installation/)
+- **Redis 7.x** - [Install Guide](https://redis.io/docs/getting-started/)
+- **Git** - [Download](https://git-scm.com/)
+
+For production deployment, you'll also need:
+- **Nginx** - Reverse proxy
+- **PM2** - Process manager (`npm install -g pm2`)
+
+---
+
+### Local Development
+
+#### 1. Clone the Repository
 
 ```bash
-# Clone repository
-git clone https://github.com/YOUR_USERNAME/mgnrega-dashboard.git
-cd mgnrega-dashboard/backend
+git clone https://github.com/aayush-chouhan-7050/mgnrega-dashboard.git
+cd mgnrega-dashboard
+```
+
+#### 2. Backend Setup
+
+```bash
+cd backend
 
 # Install dependencies
 npm install
 
-# Create .env file
-cat > .env << EOF
-PORT=5000
+# Create environment file
+cp .env.example .env
+
+# Edit .env file
+nano .env
+```
+
+**Configure `.env`:**
+
+```env
+PORT=5001
 NODE_ENV=development
 MONGODB_URI=mongodb://localhost:27017/mgnrega
 REDIS_URL=redis://localhost:6379
 DATA_GOV_API_BASE=https://api.data.gov.in/resource/
-DATA_GOV_API_KEY=
+DATA_GOV_API_KEY=your_api_key_here
 CORS_ORIGIN=http://localhost:3000
-EOF
+```
 
-# Seed database with sample data
+**Seed the database:**
+
+```bash
 npm run seed
+```
 
-# Start development server
+**Start development server:**
+
+```bash
 npm run dev
 ```
 
-### Frontend Setup
+Backend will run on `http://localhost:5001`
+
+#### 3. Frontend Setup
+
+Open a new terminal:
 
 ```bash
-# Navigate to frontend
-cd ../frontend
+cd frontend
 
 # Install dependencies
 npm install
 
-# Create .env file
-echo "VITE_API_URL=http://localhost:5000/api" > .env
+# Create environment file
+echo "VITE_API_URL=http://localhost:5001/api" > .env
 
 # Start development server
 npm run dev
 ```
 
-Visit `http://localhost:3000` to see the dashboard.
+Frontend will run on `http://localhost:3000`
+
+#### 4. Verify Setup
+
+Visit `http://localhost:3000` in your browser. You should see:
+- District selector dropdown
+- Language toggle (EN/HI)
+- Info section about MGNREGA
+
+Select a district to view data!
 
 ---
 
-## 🌐 Production Deployment (AWS EC2)
+### Production Deployment
 
-### Step 1: Prepare EC2 Instance
+#### Option 1: Automated Deployment (Recommended)
+
+For AWS EC2 or any Ubuntu 22.04 server:
 
 ```bash
-# SSH into your EC2 instance
+# SSH into your server
 ssh -i your-key.pem ubuntu@YOUR_EC2_IP
 
-# Update system
-sudo apt update && sudo apt upgrade -y
-```
-
-### Step 2: Clone Repository
-
-```bash
-cd ~
-git clone https://github.com/YOUR_USERNAME/mgnrega-dashboard.git
+# Clone repository
+git clone https://github.com/aayush-chouhan-7050/mgnrega-dashboard.git
 cd mgnrega-dashboard
-```
 
-### Step 3: Run Automated Deployment
-
-```bash
-# Make deployment script executable
+# Make script executable
 chmod +x deploy.sh
 
-# Run deployment
+# Run automated deployment
 ./deploy.sh
 ```
 
 The script will:
-1. ✅ Install Node.js, MongoDB, Redis, Nginx, PM2
-2. ✅ Setup backend with environment variables
+1. ✅ Install all dependencies (Node.js, MongoDB, Redis, Nginx, PM2)
+2. ✅ Configure environment variables
 3. ✅ Seed database with sample data
-4. ✅ Start backend with PM2
-5. ✅ Build and deploy frontend
-6. ✅ Configure Nginx as reverse proxy
-7. ✅ Setup firewall rules
+4. ✅ Build and deploy frontend
+5. ✅ Setup Nginx reverse proxy
+6. ✅ Start backend with PM2
+7. ✅ Configure firewall rules
 8. ✅ Display access URL
 
-### Step 4: Access Dashboard
+**Access your dashboard at:** `http://YOUR_EC2_IP`
 
-After deployment completes, access your dashboard at:
-```
-http://YOUR_EC2_IP
+#### Option 2: Manual Deployment
+
+See the detailed [Manual Deployment Guide](docs/MANUAL_DEPLOYMENT.md) for step-by-step instructions.
+
+#### Option 3: HTTPS Setup (Recommended for Production)
+
+```bash
+# Install Certbot
+sudo snap install --classic certbot
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+
+# Get SSL certificate
+sudo certbot --nginx -d your-domain.com
+
+# Update backend .env
+nano ~/mgnrega-dashboard/backend/.env
+# Change CORS_ORIGIN to https://your-domain.com
+
+# Restart backend
+pm2 restart mgnrega-backend
 ```
 
 ---
 
-## 🔧 Manual Deployment (Alternative)
+## 📡 API Documentation
 
-If you prefer manual deployment:
+### Base URL
 
-### Install Dependencies
+- **Development**: `http://localhost:5001/api`
+- **Production**: `https://your-domain.com/api`
 
-```bash
-# Node.js 20.x
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
+### Endpoints
 
-# MongoDB 7.0
-curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg
-echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
-sudo apt update && sudo apt install -y mongodb-org
-sudo systemctl start mongod && sudo systemctl enable mongod
+#### Health Check
 
-# Redis
-sudo apt install -y redis-server
-sudo systemctl start redis-server && sudo systemctl enable redis-server
-
-# Nginx
-sudo apt install -y nginx
-sudo systemctl start nginx && sudo systemctl enable nginx
-
-# PM2
-sudo npm install -g pm2
+```http
+GET /api/health
 ```
 
-### Deploy Backend
-
-```bash
-cd ~/mgnrega-dashboard/backend
-npm install
-
-# Create .env (replace YOUR_EC2_IP)
-cat > .env << EOF
-PORT=5000
-NODE_ENV=production
-MONGODB_URI=mongodb://localhost:27017/mgnrega
-REDIS_URL=redis://localhost:6379
-DATA_GOV_API_BASE=https://api.data.gov.in/resource/
-CORS_ORIGIN=http://YOUR_EC2_IP
-EOF
-
-# Seed database
-node src/jobs/seedData.js
-
-# Start with PM2
-pm2 start src/app.js --name mgnrega-backend
-pm2 save
-pm2 startup
-```
-
-### Deploy Frontend
-
-```bash
-cd ~/mgnrega-dashboard/frontend
-npm install
-
-# Create .env
-echo "VITE_API_URL=/api" > .env
-
-# Build
-npm run build
-
-# Deploy to Nginx
-sudo mkdir -p /var/www/mgnrega
-sudo cp -r dist/* /var/www/mgnrega/
-sudo chown -R www-data:www-data /var/www/mgnrega
-```
-
-### Configure Nginx
-
-```bash
-sudo nano /etc/nginx/sites-available/mgnrega
-```
-
-Paste this configuration:
-
-```nginx
-server {
-    listen 80;
-    server_name _;
-
-    location / {
-        root /var/www/mgnrega;
-        try_files $uri $uri/ /index.html;
-        gzip on;
-        gzip_types text/css application/javascript application/json;
+**Response:**
+```json
+{
+  "status": "ok",
+  "timestamp": "2025-11-01T12:00:00.000Z",
+  "uptime": 3600,
+  "services": {
+    "mongodb": {
+      "status": "connected",
+      "dbName": "mgnrega"
+    },
+    "redis": {
+      "status": "connected"
+    },
+    "database": {
+      "status": "ok",
+      "recordCount": 12540
     }
-
-    location /api {
-        proxy_pass http://localhost:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
+  },
+  "memory": {
+    "rss": "125.45 MB",
+    "heapUsed": "89.32 MB",
+    "heapTotal": "110.15 MB"
+  }
 }
 ```
 
-Enable and restart:
+#### Get All Districts
 
+```http
+GET /api/districts
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "districts": [
+    {
+      "code": "raipur",
+      "name": {
+        "en": "RAIPUR",
+        "hi": "रायपुर"
+      },
+      "coordinates": {
+        "lat": 21.2514,
+        "lng": 81.6296
+      }
+    }
+    // ... 32 more districts
+  ]
+}
+```
+
+#### Get District History
+
+```http
+GET /api/districts/:districtCode/history/:yearKey
+```
+
+**Parameters:**
+- `districtCode` (string): District code (e.g., "raipur")
+- `yearKey` (string): Time filter
+  - `12m` - Last 12 months
+  - `all` - All historical data
+  - `2020-2021` - Specific financial year
+
+**Example:**
 ```bash
-sudo ln -sf /etc/nginx/sites-available/mgnrega /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
-sudo nginx -t
-sudo systemctl reload nginx
+curl https://mgnrega-dash.duckdns.org/api/districts/raipur/history/12m
 ```
 
-### Setup Firewall
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "districtCode": "raipur",
+      "districtName": "RAIPUR",
+      "month": "Oct",
+      "year": 2024,
+      "recordDate": "2024-10-01T00:00:00.000Z",
+      "data": {
+        "householdsEmployed": 8542,
+        "personDaysGenerated": 93962,
+        "worksCompleted": 341,
+        "expenditure": 1025.04,
+        "activeWorkers": 4698,
+        "womenEmployment": 55542
+      },
+      "lastUpdated": "2024-11-01T02:00:00.000Z"
+    }
+    // ... more months
+  ],
+  "source": "cache"
+}
+```
 
-```bash
-sudo ufw allow 22
-sudo ufw allow 80
-sudo ufw allow 443
-sudo ufw --force enable
+#### Get Available Financial Years
+
+```http
+GET /api/districts/:districtCode/financial-years
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    "2024-2025",
+    "2023-2024",
+    "2022-2023",
+    "2021-2022",
+    "2020-2021",
+    "2019-2020",
+    "2018-2019"
+  ],
+  "source": "cache"
+}
+```
+
+#### Compare All Districts
+
+```http
+GET /api/districts/compare/all
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "districtCode": "raipur",
+      "districtName": {
+        "en": "RAIPUR",
+        "hi": "रायपुर"
+      },
+      "data": {
+        "householdsEmployed": 8542,
+        "personDaysGenerated": 93962,
+        "worksCompleted": 341,
+        "expenditure": 1025.04
+      }
+    }
+    // ... 32 more districts
+  ],
+  "source": "database"
+}
+```
+
+#### Detect District from Location
+
+```http
+POST /api/location/detect
+Content-Type: application/json
+
+{
+  "lat": 21.2514,
+  "lng": 81.6296
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "detectedDistrict": "raipur",
+  "distance": 2.34,
+  "confidence": "high",
+  "geocodedLocation": {
+    "district": "Raipur",
+    "state": "Chhattisgarh",
+    "country": "India",
+    "fullAddress": "Raipur, Chhattisgarh, India"
+  },
+  "coordinates": {
+    "lat": 21.2514,
+    "lng": 81.6296
+  }
+}
 ```
 
 ---
 
-## 📊 API Endpoints
-
-### Districts
-- `GET /api/districts` - List all districts
-- `GET /api/districts/:code/current` - Current month data
-- `GET /api/districts/:code/history` - Last 12 months
-- `GET /api/districts/compare/all` - Compare all districts
-
-### Location
-- `POST /api/location/detect` - Detect district from coordinates
-  ```json
-  { "lat": 21.2514, "lng": 81.6296 }
-  ```
-
-### System
-- `GET /api/health` - Health check
-- `GET /api/stats` - Database statistics
-
----
-
-## 🎨 Features
-
-### For Users (Low-Literacy Focus)
-
-1. **Visual Metrics Cards**
-   - Large colorful cards with icons
-   - Big numbers, minimal text
-   - Color-coded by category
-
-2. **Interactive Charts**
-   - Line charts for trends
-   - Bar charts for comparisons
-   - Tooltip explanations
-
-3. **Multilingual Interface**
-   - Toggle between English and Hindi
-   - All content translated
-   - Unicode support for Devanagari
-
-4. **Location Detection**
-   - Automatic district detection
-   - GPS-based geolocation
-   - Fallback to manual selection
-
-5. **What is MGNREGA?**
-   - Simple explanation box
-   - Icon-based visual aid
-   - Easy-to-understand language
-
-### For System (Production-Ready)
-
-1. **Caching Layer**
-   - Redis caches API responses
-   - 24-hour TTL for district data
-   - Reduces load on data.gov.in
-
-2. **Error Handling**
-   - Graceful API failures
-   - Sample data fallback
-   - User-friendly error messages
-
-3. **Performance**
-   - Gzip compression
-   - MongoDB indexing
-   - Connection pooling
-   - PM2 clustering
-
-4. **Security**
-   - Helmet.js security headers
-   - CORS protection
-   - Rate limiting (100 req/15min)
-   - Input validation
-
-5. **Monitoring**
-   - PM2 process management
-   - Nginx access logs
-   - MongoDB query logs
-   - Redis metrics
-
----
-
-## 🔄 Daily Data Sync
-
-The system automatically syncs data from data.gov.in daily at 2 AM IST.
-
-**Manual sync:**
-```bash
-npm run sync
-```
-
-**Cron schedule** (in `dataSync.js`):
-```javascript
-cron.schedule('0 2 * * *', syncDistrictData);
-```
-
----
-
-## 📝 Environment Variables
+## 🔐 Environment Variables
 
 ### Backend (.env)
 
-```env
-PORT=5000                              # Backend port
-NODE_ENV=production                    # Environment
-MONGODB_URI=mongodb://localhost:27017/mgnrega  # MongoDB connection
-REDIS_URL=redis://localhost:6379       # Redis connection
-DATA_GOV_API_BASE=https://api.data.gov.in/resource/  # API base URL
-DATA_GOV_API_KEY=                      # API key (optional)
-CORS_ORIGIN=http://YOUR_EC2_IP         # Frontend URL
-```
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `PORT` | Backend server port | `5001` | No |
+| `NODE_ENV` | Environment mode | `development` | Yes |
+| `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/mgnrega` | Yes |
+| `REDIS_URL` | Redis connection string | `redis://localhost:6379` | Yes |
+| `DATA_GOV_API_BASE` | Data.gov.in API base URL | `https://api.data.gov.in/resource/` | Yes |
+| `DATA_GOV_API_KEY` | Data.gov.in API key | - | No* |
+| `CORS_ORIGIN` | Allowed frontend origin | `http://localhost:3000` | Yes |
+
+*Optional for data.gov.in, but recommended for higher rate limits
 
 ### Frontend (.env)
 
-```env
-VITE_API_URL=/api                      # Backend API URL
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `VITE_API_URL` | Backend API URL | `/api` | Yes |
+
+**Note:** In production with Nginx, use `/api` to leverage reverse proxy. In development, use full URL like `http://localhost:5001/api`.
+
+---
+
+## 🔧 Maintenance & Operations
+
+### PM2 Commands
+
+```bash
+# View all processes
+pm2 status
+
+# View logs
+pm2 logs mgnrega-backend
+pm2 logs mgnrega-backend --lines 100
+
+# Restart application
+pm2 restart mgnrega-backend
+
+# Stop application
+pm2 stop mgnrega-backend
+
+# Delete process
+pm2 delete mgnrega-backend
+
+# Monitor resources
+pm2 monit
+
+# Save PM2 configuration
+pm2 save
+
+# Setup startup script
+pm2 startup
+```
+
+### MongoDB Operations
+
+```bash
+# Connect to MongoDB shell
+mongosh mgnrega
+
+# View collections
+show collections
+
+# Count total records
+db.districtdatas.countDocuments()
+
+# View latest records
+db.districtdatas.find().sort({recordDate: -1}).limit(5).pretty()
+
+# Check indexes
+db.districtdatas.getIndexes()
+
+# Database statistics
+db.stats()
+
+# Backup database
+mongodump --db mgnrega --out /backup/mgnrega-$(date +%Y%m%d)
+
+# Restore database
+mongorestore --db mgnrega /backup/mgnrega-20241101/mgnrega
+```
+
+### Redis Operations
+
+```bash
+# Connect to Redis CLI
+redis-cli
+
+# View all keys
+KEYS *
+
+# Get cached data
+GET "district:raipur:current"
+
+# Check key expiration
+TTL "district:raipur:current"
+
+# Clear all cache
+FLUSHALL
+
+# Get Redis info
+INFO
+
+# Monitor Redis commands
+MONITOR
+```
+
+### Nginx Operations
+
+```bash
+# Test configuration
+sudo nginx -t
+
+# Reload configuration
+sudo systemctl reload nginx
+
+# Restart Nginx
+sudo systemctl restart nginx
+
+# View access logs
+sudo tail -f /var/log/nginx/mgnrega_access.log
+
+# View error logs
+sudo tail -f /var/log/nginx/mgnrega_error.log
+
+# Check Nginx status
+sudo systemctl status nginx
+```
+
+### Data Synchronization
+
+```bash
+# Manual sync (standalone)
+cd ~/mgnrega-dashboard/backend
+npm run sync
+
+# View sync logs
+pm2 logs mgnrega-backend | grep "sync"
+
+# Check last sync time
+mongosh mgnrega --eval "db.districtdatas.find().sort({lastUpdated: -1}).limit(1).pretty()"
+```
+
+### Log Management
+
+```bash
+# View application logs
+cd ~/mgnrega-dashboard/backend/logs
+
+# Today's logs
+cat app-$(date +%Y-%m-%d).log
+
+# Error logs only
+cat error-$(date +%Y-%m-%d).log
+
+# Search logs
+grep "error" app-*.log
+
+# Tail logs in real-time
+tail -f app-$(date +%Y-%m-%d).log
+
+# Rotate old logs (manual)
+find logs/ -name "*.log" -mtime +30 -delete
 ```
 
 ---
 
-## 🛠️ Maintenance Commands
+## ♿ Accessibility Features
 
-### PM2 Management
-```bash
-pm2 status                    # Check status
-pm2 logs mgnrega-backend      # View logs
-pm2 restart mgnrega-backend   # Restart app
-pm2 stop mgnrega-backend      # Stop app
-pm2 delete mgnrega-backend    # Remove app
-```
+This dashboard is built with accessibility as a core principle:
 
-### MongoDB
-```bash
-sudo systemctl status mongod   # Check status
-sudo systemctl restart mongod  # Restart
-mongosh                        # MongoDB shell
-use mgnrega                    # Switch database
-db.districtdatas.find().limit(5)  # View data
-```
+### ARIA Labels
+- All interactive elements have descriptive labels
+- Charts include `aria-labelledby` and text descriptions
+- Form inputs properly associated with labels
 
-### Redis
-```bash
-sudo systemctl status redis-server  # Check status
-redis-cli                           # Redis CLI
-KEYS *                              # List all keys
-GET district:raipur:current         # Get cached data
-FLUSHALL                            # Clear cache
-```
+### Keyboard Navigation
+- Full keyboard support (Tab, Enter, Space, Arrows)
+- Visible focus indicators
+- Logical tab order
 
-### Nginx
-```bash
-sudo systemctl status nginx    # Check status
-sudo nginx -t                  # Test configuration
-sudo systemctl reload nginx    # Reload config
-sudo tail -f /var/log/nginx/mgnrega_access.log  # View logs
-```
+### Screen Reader Support
+- Semantic HTML elements (`<article>`, `<section>`, `<nav>`)
+- Live regions for dynamic content (`aria-live`)
+- Status announcements for loading states
+
+### Visual Accessibility
+- High contrast color scheme (WCAG AA compliant)
+- Large touch targets (44x44px minimum)
+- Scalable fonts (responsive sizing)
+- Clear visual hierarchy
+
+### Language Support
+- Full bilingual interface (EN/HI)
+- Devanagari font optimization
+- RTL-ready layout structure
 
 ---
 
-## 🧪 Testing
+## ⚡ Performance Optimizations
 
-### Health Check
-```bash
-curl http://YOUR_EC2_IP/api/health
+### Frontend
+- **Code Splitting**: Vendor and chart libraries separated
+- **Lazy Loading**: Components loaded on-demand
+- **Image Optimization**: SVG icons instead of raster images
+- **Bundle Minification**: Terser for production builds
+- **Gzip Compression**: Enabled in Nginx
+
+### Backend
+- **Redis Caching**: 24-hour TTL reduces DB queries
+- **MongoDB Indexing**: Compound indexes on common queries
+- **Connection Pooling**: Reuse database connections
+- **Response Compression**: Gzip middleware
+- **Rate Limiting**: Prevents API abuse
+
+### Database
+```javascript
+// Optimized indexes
+{ districtCode: 1, recordDate: -1 }
+{ districtCode: 1, year: 1, month: 1 }
 ```
 
-### Get Districts
-```bash
-curl http://YOUR_EC2_IP/api/districts
-```
-
-### Get District Data
-```bash
-curl http://YOUR_EC2_IP/api/districts/raipur/current
-```
-
-### Test Location Detection
-```bash
-curl -X POST http://YOUR_EC2_IP/api/location/detect \
-  -H "Content-Type: application/json" \
-  -d '{"lat": 21.2514, "lng": 81.6296}'
-```
+### Network
+- **CDN-Ready**: Static assets easily cacheable
+- **HTTP/2**: Multiplexing for parallel requests
+- **Keep-Alive**: Persistent connections
 
 ---
 
-## 📱 Mobile Responsive
+## 🐛 Troubleshooting
 
-The dashboard is fully responsive and works on:
-- ✅ Desktop (1920x1080+)
-- ✅ Laptop (1366x768+)
-- ✅ Tablet (768x1024)
-- ✅ Mobile (375x667+)
+### Backend won't start
 
----
-
-## 🌍 Supported Districts
-
-1. Raipur (रायपुर)
-2. Bilaspur (बिलासपुर)
-3. Durg (दुर्ग)
-4. Rajnandgaon (राजनांदगांव)
-5. Korba (कोरबा)
-6. Raigarh (रायगढ़)
-7. Janjgir-Champa (जांजगीर-चांपा)
-8. Mahasamund (महासमुंद)
-9. Bastar (बस्तर)
-10. Jashpur (जशपुर)
-
----
-
-## 🎥 Loom Video Checklist
-
-### Part 1: Live Demo (0:00-0:30)
-- [ ] Show dashboard homepage
-- [ ] Select district from dropdown
-- [ ] Demonstrate location detection
-- [ ] Toggle between English and Hindi
-- [ ] Show all metrics cards updating
-
-### Part 2: Technical Architecture (0:30-1:00)
-- [ ] SSH into EC2 instance
-- [ ] Show PM2 process running
-- [ ] Display MongoDB data: `mongosh mgnrega`
-- [ ] Show Redis cache: `redis-cli KEYS *`
-- [ ] Check Nginx configuration
-
-### Part 3: Code Walkthrough (1:00-1:40)
-- [ ] Show project structure
-- [ ] Explain backend API routes
-- [ ] Show MongoDB schema
-- [ ] Demonstrate caching service
-- [ ] Show frontend components
-- [ ] Explain location service
-
-### Part 4: Production Features (1:40-2:00)
-- [ ] Highlight error handling
-- [ ] Show daily cron job
-- [ ] Explain rate limiting
-- [ ] Demonstrate responsive design
-- [ ] Show GitHub repository
-
----
-
-## 🚨 Troubleshooting
-
-### Backend not starting
 ```bash
 # Check logs
 pm2 logs mgnrega-backend
 
-# Check MongoDB
+# Common issues:
+# 1. MongoDB not running
 sudo systemctl status mongod
+sudo systemctl start mongod
 
-# Check Redis
+# 2. Redis not running
 sudo systemctl status redis-server
+sudo systemctl start redis-server
+
+# 3. Port already in use
+sudo lsof -i :5001
+# Kill process using the port
+sudo kill -9 <PID>
+
+# 4. Environment variables missing
+cat ~/mgnrega-dashboard/backend/.env
 
 # Restart everything
 pm2 restart mgnrega-backend
@@ -579,53 +890,101 @@ sudo systemctl restart mongod
 sudo systemctl restart redis-server
 ```
 
-### Frontend not loading
+### Frontend shows 502 Bad Gateway
+
 ```bash
-# Check Nginx
+# Backend is down or unreachable
+pm2 status
+pm2 restart mgnrega-backend
+
+# Check Nginx proxy configuration
 sudo nginx -t
-sudo systemctl status nginx
+sudo systemctl reload nginx
 
-# Check file permissions
-ls -la /var/www/mgnrega
-
-# Rebuild frontend
-cd ~/mgnrega-dashboard/frontend
-npm run build
-sudo cp -r dist/* /var/www/mgnrega/
+# Check backend logs
+pm2 logs mgnrega-backend --lines 50
 ```
 
 ### Location detection not working
-- Ensure browser supports geolocation
-- Check HTTPS (geolocation requires HTTPS in production)
-- Verify coordinates are within Chhattisgarh bounds
+
+**Symptoms**: "Use My Location" button fails
+
+**Causes**:
+1. **HTTP instead of HTTPS**: Geolocation API requires secure context
+   - Solution: Setup SSL certificate with Certbot
+2. **Browser permissions denied**
+   - Solution: Ask user to enable location services
+3. **GPS unavailable**
+   - Solution: Fallback to manual district selection (already implemented)
+
+### Data not updating
+
+```bash
+# Check last sync time
+mongosh mgnrega --eval "db.districtdatas.find().sort({lastUpdated: -1}).limit(1).pretty()"
+
+# Run manual sync
+cd ~/mgnrega-dashboard/backend
+npm run sync
+
+# Check cron job is running
+pm2 logs mgnrega-backend | grep "cron\|sync"
+
+# Clear Redis cache to force fresh data
+redis-cli FLUSHALL
+```
+
+### High memory usage
+
+```bash
+# Check PM2 stats
+pm2 monit
+
+# Check system resources
+free -h
+df -h
+
+# Restart backend to clear memory
+pm2 restart mgnrega-backend
+
+# Check for memory leaks
+pm2 logs mgnrega-backend | grep "memory\|heap"
+```
+
+### Slow API responses
+
+```bash
+# Check Redis is working
+redis-cli PING
+
+# Monitor slow MongoDB queries
+mongosh mgnrega
+db.setProfilingLevel(2, { slowms: 100 })
+db.system.profile.find().sort({ts: -1}).limit(10).pretty()
+
+# Check database indexes
+db.districtdatas.getIndexes()
+
+# Analyze query performance
+db.districtdatas.find({districtCode: "raipur"}).explain("executionStats")
+```
 
 ---
 
 ## 📄 License
 
-MIT License
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 👨‍💻 Author
+## 🙏 Acknowledgments
 
-Created as part of MGNREGA data accessibility initiative
-
----
-
-## 🔗 Links
-
-- **GitHub**: https://github.com/aayush-chouhan-7050/mgnrega-dashboard
-- **Loom Video**: [Your Loom Link]
-- **Live Demo**: http://YOUR_EC2_IP
+- **Ministry of Rural Development** - MGNREGA program
+- **Data.gov.in** - Open data platform
+- **OpenStreetMap** - Reverse geocoding services
+- **React Community** - Excellent documentation
+- **Tailwind Labs** - Beautiful utility-first CSS
 
 ---
 
-## 📞 Support
-
-For issues or questions:
-1. Check troubleshooting section above
-2. Review PM2 logs: `pm2 logs`
-3. Check Nginx logs: `sudo tail -f /var/log/nginx/mgnrega_error.log`
-
----
+**Made with ❤️ for rural India** | **ग्रामीण भारत के लिए प्यार से बनाया गया**

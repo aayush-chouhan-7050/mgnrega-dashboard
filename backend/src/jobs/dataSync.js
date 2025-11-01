@@ -4,8 +4,6 @@ import { fetchAllStateDataForMonth, transformApiData } from '../services/dataGov
 import { DISTRICTS_CONFIG } from '../routes/districts.js'; 
 
 // --- HELPER ---
-// Map of month abbreviations to JS month index (0-11)
-// This map remains the same (3-letter keys).
 const MONTH_MAP = {
   'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
   'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
